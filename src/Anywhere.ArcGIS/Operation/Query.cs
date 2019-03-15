@@ -1,4 +1,5 @@
 ﻿using Anywhere.ArcGIS.Common;
+using Anywhere.ArcGIS.GeoJson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -240,8 +241,7 @@ namespace Anywhere.ArcGIS.Operation
     }
 
     [DataContract]
-    public class QueryResponse<T> : PortalResponse
-        where T : IGeometry
+    public class QueryResponse : PortalResponse
     {
         public QueryResponse()
         {
@@ -262,9 +262,6 @@ namespace Anywhere.ArcGIS.Operation
 
         [IgnoreDataMember]
         public Type GeometryType { get { return GeometryTypes.ToTypeMap[GeometryTypeString](); } }
-
-        [DataMember(Name = "features")]
-        public IEnumerable<Feature<T>> Features { get; set; }
 
         [DataMember(Name = "spatialReference")]
         public SpatialReference SpatialReference { get; set; }
@@ -288,6 +285,21 @@ namespace Anywhere.ArcGIS.Operation
                     : FieldAliases[DisplayFieldName];
             }
         }
+    }
+
+    [DataContract]
+    public class QueryResponse<T> : QueryResponse
+        where T : IGeometry
+    {
+        public QueryResponse()
+        {
+            FieldAliases = new Dictionary<string, string>();
+        }
+                
+        [DataMember(Name = "features")]
+        public IEnumerable<Feature<T>> Features { get; set; }
+
+        
     }
 
     [DataContract]
@@ -398,7 +410,7 @@ namespace Anywhere.ArcGIS.Operation
         public Extent Extent { get; set; }
     }
 
-    public static class GeometryTypes
+    public class GeometryTypes : IGeometry
     {
         public readonly static Dictionary<Type, Func<string>> TypeMap = new Dictionary<Type, Func<string>>
         {
@@ -423,6 +435,25 @@ namespace Anywhere.ArcGIS.Operation
         public const string Polyline = "esriGeometryPolyline";
         public const string Polygon = "esriGeometryPolygon";
         public const string Envelope = "esriGeometryEnvelope";
+
+        // Required methods to inherit from IGeometry
+        public SpatialReference SpatialReference { get; set; }
+        public Extent GetExtent()
+        {
+            return new Extent();
+        }
+        public Point GetCenter()
+        {
+            return new Point();
+        }
+        public IGeoJsonGeometry ToGeoJson()
+        {
+            return new GeoJsonPoint();
+        }
+        public object Clone()
+        {
+            return new object();
+        }
     }
 
     public static class SpatialRelationshipTypes
