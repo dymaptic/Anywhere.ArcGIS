@@ -410,7 +410,7 @@ namespace Anywhere.ArcGIS.Operation
         public Extent Extent { get; set; }
     }
 
-    public class GeometryTypes : IGeometry
+    public class GeometryTypes
     {
         public readonly static Dictionary<Type, Func<string>> TypeMap = new Dictionary<Type, Func<string>>
         {
@@ -436,24 +436,6 @@ namespace Anywhere.ArcGIS.Operation
         public const string Polygon = "esriGeometryPolygon";
         public const string Envelope = "esriGeometryEnvelope";
 
-        // Required methods to inherit from IGeometry
-        public SpatialReference SpatialReference { get; set; }
-        public Extent GetExtent()
-        {
-            return new Extent();
-        }
-        public Point GetCenter()
-        {
-            return new Point();
-        }
-        public IGeoJsonGeometry ToGeoJson()
-        {
-            return new GeoJsonPoint();
-        }
-        public object Clone()
-        {
-            return new object();
-        }
     }
 
     public static class SpatialRelationshipTypes
