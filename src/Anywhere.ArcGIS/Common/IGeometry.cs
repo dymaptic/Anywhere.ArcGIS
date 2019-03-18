@@ -701,4 +701,15 @@ namespace Anywhere.ArcGIS.Common
             };
         }
     }
+
+    [DataContract]
+    public class NoGeometry : IGeometry
+    {
+        [DataMember(Name = "spatialReference")]
+        public SpatialReference SpatialReference { get; set; }
+        public Extent GetExtent() { return new Extent(); }        
+        public Point GetCenter() { return new Point(); }
+        public IGeoJsonGeometry ToGeoJson() { return new GeoJsonPoint(); }
+        public object Clone() { return new object(); }
+    }
 }

@@ -261,7 +261,13 @@ namespace Anywhere.ArcGIS.Operation
         public string GeometryTypeString { get; set; }
 
         [IgnoreDataMember]
-        public Type GeometryType { get { return GeometryTypes.ToTypeMap[GeometryTypeString](); } }
+        public Type GeometryType {
+            get
+            {
+                if (GeometryTypeString == null) { return GeometryTypes.ToTypeMap["noGeometry"](); }
+                return GeometryTypes.ToTypeMap[GeometryTypeString]();
+            }
+        }
 
         [DataMember(Name = "spatialReference")]
         public SpatialReference SpatialReference { get; set; }
@@ -418,7 +424,8 @@ namespace Anywhere.ArcGIS.Operation
             { typeof(MultiPoint), () => GeometryTypes.MultiPoint },
             { typeof(Extent), () => GeometryTypes.Envelope },
             { typeof(Polygon), () => GeometryTypes.Polygon },
-            { typeof(Polyline), () => GeometryTypes.Polyline }
+            { typeof(Polyline), () => GeometryTypes.Polyline },
+            { typeof(NoGeometry), () => GeometryTypes.NoGeometry }
         };
 
         public readonly static Dictionary<string, Func<Type>> ToTypeMap = new Dictionary<string, Func<Type>>
@@ -427,7 +434,8 @@ namespace Anywhere.ArcGIS.Operation
             { GeometryTypes.MultiPoint, () => typeof(MultiPoint) },
             { GeometryTypes.Envelope, () => typeof(Extent) },
             { GeometryTypes.Polygon, () => typeof(Polygon) },
-            { GeometryTypes.Polyline, () => typeof(Polyline) }
+            { GeometryTypes.Polyline, () => typeof(Polyline) },
+            { GeometryTypes.NoGeometry, () => typeof(NoGeometry) }
         };
 
         public const string Point = "esriGeometryPoint";
@@ -435,7 +443,7 @@ namespace Anywhere.ArcGIS.Operation
         public const string Polyline = "esriGeometryPolyline";
         public const string Polygon = "esriGeometryPolygon";
         public const string Envelope = "esriGeometryEnvelope";
-
+        public const string NoGeometry = "noGeometry";
     }
 
     public static class SpatialRelationshipTypes

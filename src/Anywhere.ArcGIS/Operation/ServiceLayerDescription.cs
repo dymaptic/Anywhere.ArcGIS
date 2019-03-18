@@ -49,9 +49,11 @@
         public string GeometryTypeString { get; set; }
 
         [IgnoreDataMember]
-        public Type GeometryType { get {
-                //if geometryTypeString is null set this to table (add a geometry type)
-                return GeometryTypes.ToTypeMap[GeometryTypeString](); } }
+        public Type GeometryType { get
+            {
+                if (GeometryTypeString == null) { return GeometryTypes.ToTypeMap["noGeometry"](); }
+                return GeometryTypes.ToTypeMap[GeometryTypeString]();
+            } }
 
         [DataMember(Name = "copyrightText")]
         public string CopyrightText { get; set; }
