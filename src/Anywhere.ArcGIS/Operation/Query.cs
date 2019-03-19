@@ -264,7 +264,7 @@ namespace Anywhere.ArcGIS.Operation
         public Type GeometryType {
             get
             {
-                if (GeometryTypeString == null) { return GeometryTypes.ToTypeMap["noGeometry"](); }
+                if (GeometryTypeString == null) { return GeometryTypes.ToTypeMap[GeometryTypes.NoGeometry](); }
                 return GeometryTypes.ToTypeMap[GeometryTypeString]();
             }
         }

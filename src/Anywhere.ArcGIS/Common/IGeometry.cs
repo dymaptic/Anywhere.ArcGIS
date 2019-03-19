@@ -703,7 +703,7 @@ namespace Anywhere.ArcGIS.Common
     }
 
     [DataContract]
-    public class NoGeometry : IGeometry
+    public class NoGeometry : IGeometry, IEquatable<NoGeometry>
     {
         [DataMember(Name = "spatialReference")]
         public SpatialReference SpatialReference { get; set; }
@@ -711,5 +711,11 @@ namespace Anywhere.ArcGIS.Common
         public Point GetCenter() { return new Point(); }
         public IGeoJsonGeometry ToGeoJson() { return new GeoJsonPoint(); }
         public object Clone() { return new object(); }
+        public bool Equals(NoGeometry other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(SpatialReference, other.SpatialReference);
+        }
     }
 }
