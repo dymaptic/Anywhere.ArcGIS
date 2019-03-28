@@ -234,6 +234,106 @@
             return Get<QueryResponse<T>, Query>(queryOptions, ct);
         }
 
+        public virtual Task<PortalQueryResponse> GetPortalItem(PortalQuery portalQuery, CancellationToken ct = default(CancellationToken))
+        {
+            return GetPortalData<PortalQueryResponse, PortalQuery>(portalQuery, ct);
+        }
+
+        protected async Task<T> GetPortalData<T, TRequest>(TRequest requestObject, CancellationToken ct)
+            where TRequest : ArcGISServerOperation
+            where T : IPortalResponse
+        {
+            if (requestObject == null)
+            {
+                throw new ArgumentNullException(nameof(requestObject));
+            }
+
+            if (requestObject.Endpoint == null)
+            {
+                throw new ArgumentNullException(nameof(requestObject.Endpoint));
+            }
+
+            var endpoint = requestObject.Endpoint;
+            var url = endpoint.BuildAbsoluteUrl(RootUrl) + AsRequestQueryString(Serializer, requestObject);
+
+            if (url.Length > MaximumGetRequestLength)
+            {
+                _logger.DebugFormat("Url length {0} is greater than maximum configured {1}, switching to POST.", url.Length, MaximumGetRequestLength);
+                return await Post<T, TRequest>(requestObject, ct).ConfigureAwait(false);
+            }
+
+            requestObject.BeforeRequest?.Invoke();
+
+            var token = await CheckGenerateToken(ct).ConfigureAwait(false);
+            if (ct.IsCancellationRequested)
+            {
+                return default(T);
+            }
+
+            if (!url.Contains("f="))
+            {
+                url += (url.Contains("?") ? "&" : "?") + "f=json";
+            }
+
+            if (token != null && !string.IsNullOrWhiteSpace(token.Value) && !url.Contains("token="))
+            {
+                url += (url.Contains("?") ? "&" : "?") + "token=" + token.Value;
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token.Value);
+                if (token.AlwaysUseSsl)
+                {
+                    url = url.Replace("http:", "https:");
+                }
+            }
+
+            bool validUrl = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+            if (!validUrl)
+            {
+                throw new HttpRequestException(string.Format("Not a valid url: {0}", url));
+            }
+            _logger.DebugFormat("GET {0}", uri.AbsoluteUri);
+
+            if (CancelPendingRequests)
+            {
+                _httpClient.CancelPendingRequests();
+            }
+
+            string resultString = string.Empty;
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync(uri, ct).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+
+                resultString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            }
+            catch (TaskCanceledException tce)
+            {
+                _logger.WarnException("GET cancelled (exception swallowed)", tce);
+                return default(T);
+            }
+
+            var result = new PortalQueryResponse()
+            {
+                JsonObject = resultString
+            };
+
+            //var result = Serializer.AsPortalResponse<T>(resultString);
+            if (result.Error != null)
+            {
+                throw new InvalidOperationException(result.Error.ToString());
+            }
+
+            if (IncludeHypermediaWithResponse)
+            {
+                result.Links = new List<Link> { new Link(uri.AbsoluteUri) };
+            }
+
+            requestObject.AfterRequest?.Invoke();
+
+            //return result;
+            return (T)Convert.ChangeType(result, typeof(T));
+        }
+
+
         public virtual async Task<QueryResponse<T>> BatchQuery<T>(Query queryOptions, CancellationToken ct = default(CancellationToken))
             where T : IGeometry
         {

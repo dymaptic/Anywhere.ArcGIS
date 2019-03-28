@@ -10,6 +10,11 @@
             return new ArcGISServerEndpoint(relativeUrl);
         }
 
+        public static ArcGISPortalEndpoint AsPortalEndpoint(this string relativeUrl)
+        {
+            return new ArcGISPortalEndpoint(relativeUrl);
+        }
+
         public static ArcGISServerAdminEndpoint AsAdminEndpoint(this string relativeUrl)
         {
             return new ArcGISServerAdminEndpoint(relativeUrl);
