@@ -28,9 +28,6 @@ namespace Anywhere.ArcGIS.Operation
 
     public class PortalQueryResponse : PortalResponse
     {
-        //[DataMember(Name = "type")]
-        //public string Type { get; set; }
-
         [DataMember(Name = "jsonObject")]
         public string JsonObject { get; set; }
     }

@@ -239,6 +239,14 @@
             return GetPortalData<PortalQueryResponse, PortalQuery>(portalQuery, ct);
         }
 
+        /// <summary>
+        /// This function is the same as the Get function except it doesn't deserialize the Json returned from the URL request
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <param name="requestObject"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
         protected async Task<T> GetPortalData<T, TRequest>(TRequest requestObject, CancellationToken ct)
             where TRequest : ArcGISServerOperation
             where T : IPortalResponse
@@ -316,7 +324,6 @@
                 JsonObject = resultString
             };
 
-            //var result = Serializer.AsPortalResponse<T>(resultString);
             if (result.Error != null)
             {
                 throw new InvalidOperationException(result.Error.ToString());
@@ -329,7 +336,6 @@
 
             requestObject.AfterRequest?.Invoke();
 
-            //return result;
             return (T)Convert.ChangeType(result, typeof(T));
         }
 
