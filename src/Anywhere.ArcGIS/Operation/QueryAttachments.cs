@@ -26,6 +26,7 @@ namespace Anywhere.ArcGIS.Operation
             ObjectIds = new List<long>();
             GlobalIds = new List<string>();
             SizeRange = new List<int>();
+            AttachmentTypes = new List<string>();
         }
 
         /// <summary>
@@ -63,8 +64,14 @@ namespace Anywhere.ArcGIS.Operation
         /// <summary>
         /// The file format that is supported by query attachment.
         /// </summary>
+        [IgnoreDataMember]
+        public List<string> AttachmentTypes { get; set; }
+
+        /// <summary>
+        /// The list of AttachmentTypes to be queried. This list is a comma delimited list of field names.
+        /// </summary>
         [DataMember(Name = "attachmentTypes")]
-        public string AttachmentTypes { get; set; }
+        public string AttachmentTypesValue { get { return AttachmentTypes == null || !AttachmentTypes.Any() ? null : string.Join(",", AttachmentTypes); } }
 
         /// <summary>
         /// The file size of the attachment is specified in bytes. 
